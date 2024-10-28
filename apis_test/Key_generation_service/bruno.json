@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Key_generation_service",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
