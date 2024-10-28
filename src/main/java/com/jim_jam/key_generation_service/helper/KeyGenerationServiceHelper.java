@@ -8,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class KeyGenerationServiceHelper {
 
-    private int keyLength;
-
     /**
      * Method to get random substring of length {@code KeyGenerationServiceHelper.keyLength}
      * @param str string from which we want random substring
@@ -20,7 +18,7 @@ public class KeyGenerationServiceHelper {
         if (str == null) {
             return null;
         }
-        if (str.length() < keyLength) {
+        if (str.length() < length) {
             return str;
         }
 
