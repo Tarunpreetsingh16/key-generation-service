@@ -16,7 +16,7 @@ import lombok.ToString;
 @Schema(name = "ErrorDetail", description = "Class to store details of an error")
 public class ErrorDetail {
     @Schema(name = "title", description = "Title of an error", example = "Something went wrong.")
-    private String titlee;
+    private String title;
 
     @Schema(name = "titleKey", description = "Key to identify an error", example = "something.went.wrong")
     private String titleKey;

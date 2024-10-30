@@ -4,13 +4,9 @@ import com.jim_jam.key_generation_service.common.error.ErrorDetail;
 import com.jim_jam.key_generation_service.common.error.ErrorType;
 import com.jim_jam.key_generation_service.common.error.ErrorTypeToHttpStatus;
 import com.jim_jam.key_generation_service.common.error.KeyGenerationServiceException;
-import com.jim_jam.key_generation_service.helper.KeyGenerationServiceHelper;
 import com.jim_jam.key_generation_service.service.IKeyGenerationService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 /**
  * Service layer
@@ -19,16 +15,17 @@ import java.util.UUID;
 @Service
 public class KeyGenerationServiceImpl implements IKeyGenerationService {
 
-    @Value("${key.length:6}")
-    private int keyLength;
+    private final KeyProvider keyProvider;
 
-    KeyGenerationServiceHelper keyGenerationServiceHelper = new KeyGenerationServiceHelper();
+    public KeyGenerationServiceImpl(
+            KeyProvider keyProvider
+    ) {
+        this.keyProvider = keyProvider;
+    }
 
     @Override
-    public String generateRandomKey() throws KeyGenerationServiceException {
-        UUID uuid = UUID.randomUUID();
-        String cleanUuid = uuid.toString().replaceAll("-", "");
-        String key = keyGenerationServiceHelper.getRandomSubstring(cleanUuid, keyLength);
+    public String getRandomKey() throws KeyGenerationServiceException {
+        String key = keyProvider.getKey();
         if (key == null) {
             ErrorDetail errorDetail = ErrorType.KEY_GENERATION_FAILURE.getErrorDetail();
             throw new KeyGenerationServiceException(

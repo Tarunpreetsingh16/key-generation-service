@@ -48,7 +48,7 @@ public class KeyGenerationServiceController {
     })
     @GetMapping("/")
     public ResponseEntity<GetKeyResponse> getKey() throws KeyGenerationServiceException {
-        String key = keyGenerationService.generateRandomKey();
+        String key = keyGenerationService.getRandomKey();
         return ResponseEntity.ok().body(
                 GetKeyResponse.builder()
                         .key(key)
