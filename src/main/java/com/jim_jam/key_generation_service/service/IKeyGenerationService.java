@@ -9,5 +9,5 @@ public interface IKeyGenerationService {
      * @return {@link String} random key
      * @throws KeyGenerationServiceException when something goes wrong while generating key
      */
-    String generateRandomKey() throws KeyGenerationServiceException;
+    String getRandomKey() throws KeyGenerationServiceException;
 }

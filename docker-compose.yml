@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  key-generation-service:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql  # Wait for MySQL to be ready before starting the service
+
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: RandomRoot@1234$
+      MYSQL_DATABASE: KEYS
+      MYSQL_USER: jim_jam
+      MYSQL_PASSWORD: RandomJimJam@1234$
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
