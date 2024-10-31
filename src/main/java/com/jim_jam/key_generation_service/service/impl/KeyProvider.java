@@ -1,9 +1,10 @@
 package com.jim_jam.key_generation_service.service.impl;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.jim_jam.key_generation_service.helper.KeyGenerationServiceHelper;
+import com.jim_jam.key_generation_service.data.UnusedKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,25 +19,27 @@ import java.util.UUID;
 public class KeyProvider {
     private final static String KEY = "KEYS";
 
-    @Value("${key.cache.max.size:50}")
-    private int keyCacheMaxSize;
-
-    @Value("${key.generation.threshold:70}")
-    private int keyGenerationThreshold;
-
-    @Value("${key.length:6}")
-    private int keyLength;
-
+    private final int keyCacheMaxSize;
+    private final int keyGenerationThreshold;
+    private final int keyLength;
     private final Cache<String, Object> keyCache;
-
+    private final UnusedKeyService unusedKeyService;
     /**
      * Primary constructor to set up bean
      * @param keyCache cache for keys
      */
     public KeyProvider(
-            Cache<String, Object> keyCache
+            Cache<String, Object> keyCache,
+            @Value("${key.cache.max.size:50}") int keyCacheMaxSize,
+            @Value("${key.generation.threshold:70}") int keyGenerationThreshold,
+            @Value("${key.length:6}") int keyLength,
+            UnusedKeyService unusedKeyService
     ) {
         this.keyCache = keyCache;
+        this.keyCacheMaxSize = keyCacheMaxSize;
+        this.keyGenerationThreshold = keyGenerationThreshold;
+        this.keyLength = keyLength;
+        this.unusedKeyService = unusedKeyService;
     }
 
     /**
@@ -83,10 +86,7 @@ public class KeyProvider {
         List<String> newKeys = new ArrayList<>();
 
         while (diff > 0) {
-            UUID uuid = UUID.randomUUID();
-            String cleanUuid = uuid.toString().replaceAll("-", "");
-            String generatedKey = getRandomSubstring(cleanUuid);
-            newKeys.add(generatedKey);
+            newKeys.add(generateKey(keyLength));
             diff--;
         }
         return newKeys;
@@ -97,7 +97,7 @@ public class KeyProvider {
      * @param str string from which we want random substring
      * @return {@link String} random substring
      */
-    private String getRandomSubstring(String str) {
+    private static String getRandomSubstring(String str, int keyLength) {
         if (str == null) {
             return null;
         }
@@ -108,5 +108,11 @@ public class KeyProvider {
         int startIndex = (int) (Math.random() * (str.length() - keyLength));
         int endIndex = startIndex + keyLength;
         return str.substring(startIndex, endIndex);
+    }
+
+    public static String generateKey(int keyLength) {
+        UUID uuid = UUID.randomUUID();
+        String cleanUuid = uuid.toString().replaceAll("-", "");
+        return getRandomSubstring(cleanUuid, keyLength);
     }
 }

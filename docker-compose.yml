@@ -5,21 +5,17 @@ services:
     build: .
     ports:
       - "8080:8080"
-    depends_on:
-      - mysql  # Wait for MySQL to be ready before starting the service
-
-  mysql:
-    image: mysql:latest
-    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: RandomRoot@1234$
-      MYSQL_DATABASE: KEYS
-      MYSQL_USER: jim_jam
-      MYSQL_PASSWORD: RandomJimJam@1234$
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/keys
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
     ports:
-      - "3306:3306"
+      - "27017:27017"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mongodb_data:/data/db
 
 volumes:
-  mysql_data:
+  mongodb_data:
