@@ -24,7 +24,7 @@ public class CustomExceptionHandler {
             KeyGenerationServiceException ex,
             WebRequest request
     ) {
-        log.error("Error occurred={}", ex.errorDetail.toString());
+        log.error("Error occurred={}", ex.errorDetail);
         return getGeneralError();
     }
 

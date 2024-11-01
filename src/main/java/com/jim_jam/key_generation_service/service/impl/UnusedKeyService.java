@@ -2,14 +2,17 @@ package com.jim_jam.key_generation_service.service.impl;
 
 import com.jim_jam.key_generation_service.data.UnusedKey;
 import com.jim_jam.key_generation_service.repositories.UnusedKeyRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Service layer to interact with persistence layer of unused_keys collection
  */
+@Slf4j
 @Service
 public class UnusedKeyService {
     private final UnusedKeyRepository unusedKeyRepository;
@@ -29,16 +32,21 @@ public class UnusedKeyService {
      * @return {@link UnusedKey}
      */
     public UnusedKey findOldest() {
-        Optional<UnusedKey> unusedKey = unusedKeyRepository.findAll().stream().limit(1).findFirst();
-        return unusedKey.orElse(null);
+        List<UnusedKey> keys = getKeys(1);
+        if (keys.isEmpty() || keys.get(0) == null) {
+            return null;
+        }
+        UnusedKey key = keys.get(0);
+        log.info("Successfully fetched oldest key with id={}", key.getKey());
+        return key;
     }
 
     /**
-     * Method to delete a key
-     * @param unusedKey key to be deleted
+     * Method to delete keys
+     * @param unusedKeys keys to be deleted
      */
-    public void delete(UnusedKey unusedKey) {
-        unusedKeyRepository.delete(unusedKey);
+    public void deleteAll(List<UnusedKey> unusedKeys) {
+        unusedKeyRepository.deleteAll(unusedKeys);
     }
 
     /**
@@ -56,5 +64,17 @@ public class UnusedKeyService {
      */
     public List<UnusedKey> saveAll(Iterable<UnusedKey> unusedKeys) {
         return unusedKeyRepository.saveAll(unusedKeys);
+    }
+
+    /**
+     * Method to get keys
+     * @param count number of keys to fetch
+     * @return {@link List} of unused keys
+     */
+    public List<UnusedKey> getKeys(int count) {
+        Pageable pageable = PageRequest.of(0, count);
+        List<UnusedKey> keys = unusedKeyRepository.findByOrderByCreatedAtDesc(pageable);
+        log.info("Successfully fetched {} key(s) from database", keys.size());
+        return keys;
     }
 }

@@ -10,9 +10,14 @@ public enum ErrorType {
             "Something went wrong."
     ),
     KEY_GENERATION_FAILURE(
-        "Key Generation Failure",
-        "key.generation.failure",
-        "Failed to generate a key."
+            "Key Generation Failure",
+            "key.generation.failure",
+            "Failed to generate a key."
+    ),
+    FETCH_OLDEST_KEY_FAILURE(
+            "Fetch Oldest Key Failure",
+            "fetch.oldest.key.failure",
+            "Failed to fetch the key."
     );
 
     private final String title;

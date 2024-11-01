@@ -25,7 +25,7 @@ public class ErrorResponse {
     private List<ErrorDetail> errors;
 
     @Schema(name = "timestamp", description = "Instant when error occurred", example = "2024-10-27T10:15:30.123+0000")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-ddTHH:mm:ss.SSSZ")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     private Date timestamp;
 
     /**
