@@ -1,17 +1,16 @@
 package com.jim_jam.key_generation_service.config;
 
-import com.jim_jam.key_generation_service.common.Constants;
 import com.jim_jam.key_generation_service.data.UnusedKey;
 import com.jim_jam.key_generation_service.service.impl.KeyProvider;
+import com.jim_jam.key_generation_service.service.impl.UnusedKeyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -19,51 +18,57 @@ import java.util.Set;
 public class DataLoader {
 
     private final int keyLength;
-    private final int keyCacheMaxSize;
-    private final MongoTemplate mongoTemplate;
+    private final int initialKeysCount;
+    private final UnusedKeyService unusedKeyService;
 
+    /**
+     * Primary constructor
+     * @param keyLength length of the keys that we want to use as identifier
+     * @param initialKeysCount number of keys we want to load in database
+     * @param unusedKeyService service layer for unusedKeyRepository
+     */
     public DataLoader(
             @Value("${key.length:6}") int keyLength,
-            @Value("${key.cache.max.size:50}") int keyCacheMaxSize,
-            MongoTemplate mongoTemplate
+            @Value("${initial.keys.count:100}") int initialKeysCount,
+            UnusedKeyService unusedKeyService
     ) {
         this.keyLength = keyLength;
-        this.keyCacheMaxSize = keyCacheMaxSize;
-        this.mongoTemplate = mongoTemplate;
+        this.initialKeysCount = initialKeysCount;
+        this.unusedKeyService = unusedKeyService;
     }
 
+    /**
+     * Bean to run on application load
+     * @return {@link ApplicationRunner}
+     */
     @Bean
     public ApplicationRunner initializer() {
         return args -> {
-            createCollections();
-            if(mongoTemplate.count(new Query(), Constants.UNUSED_KEYS_COLLECTION.getValue()) == 0) {
+            if(unusedKeyService.count() == 0) {
                 loadData();
             }
         };
     }
 
-    private void createCollections() {
-        mongoTemplate.createCollection(Constants.UNUSED_KEYS_COLLECTION.getValue());
-        mongoTemplate.createCollection(Constants.USED_KEYS_COLLECTION_NAME.getValue());
-    }
-
+    /**
+     * Method to load data into the database on the first launch when database is empty
+     */
     private void loadData() {
         Set<UnusedKey> unusedKeys = new HashSet<>();
 
         int i = 0;
-        while (i < keyCacheMaxSize) {
+        while (i < initialKeysCount) {
             UnusedKey unusedKey = UnusedKey.builder()
                     .key(KeyProvider.generateKey(keyLength))
                     .build();
 
-            if (mongoTemplate.findById(unusedKey, UnusedKey.class) == null && !unusedKeys.contains(unusedKey)) {
+            if (!unusedKeys.contains(unusedKey)) {
                 unusedKeys.add(unusedKey);
                 i++;
             }
         }
 
-        mongoTemplate.insertAll(unusedKeys);
-        log. info("Successfully loaded data into database: number of records = {}",
-                mongoTemplate.count(new Query(), Constants.UNUSED_KEYS_COLLECTION.getValue()));
+        List<UnusedKey> savedUnusedKeys = unusedKeyService.saveAll(unusedKeys);
+        log.info("Successfully loaded data into database: number of records = {}", savedUnusedKeys.size());
     }
 }
