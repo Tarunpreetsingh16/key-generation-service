@@ -7,7 +7,6 @@ import com.jim_jam.key_generation_service.common.error.ErrorTypeToHttpStatus;
 import com.jim_jam.key_generation_service.common.error.KeyGenerationServiceException;
 import com.jim_jam.key_generation_service.data.Key;
 import com.jim_jam.key_generation_service.data.UnusedKey;
-import com.jim_jam.key_generation_service.data.UsedKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -39,9 +38,7 @@ public class KeyProvider {
             Cache<String, Object> keyCache,
             @Value("${key.cache.max.size:50}") int keyCacheMaxSize,
             @Value("${key.generation.threshold:70}") int keyGenerationThreshold,
-            @Value("${key.length:6}") int keyLength,
             UnusedKeyService unusedKeyService,
-            UsedKeyService usedKeyService,
             KeyService keyService
     ) {
         this.keyCache = keyCache;

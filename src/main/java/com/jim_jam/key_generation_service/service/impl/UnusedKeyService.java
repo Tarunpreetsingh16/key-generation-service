@@ -1,6 +1,5 @@
 package com.jim_jam.key_generation_service.service.impl;
 
-import com.jim_jam.key_generation_service.data.Key;
 import com.jim_jam.key_generation_service.data.UnusedKey;
 import com.jim_jam.key_generation_service.repositories.UnusedKeyRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Service layer to interact with persistence layer of unused_keys collection
