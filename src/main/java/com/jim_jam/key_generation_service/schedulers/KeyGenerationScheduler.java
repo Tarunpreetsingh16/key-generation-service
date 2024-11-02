@@ -2,7 +2,6 @@ package com.jim_jam.key_generation_service.schedulers;
 
 import com.jim_jam.key_generation_service.data.Key;
 import com.jim_jam.key_generation_service.data.UnusedKey;
-import com.jim_jam.key_generation_service.data.UsedKey;
 import com.jim_jam.key_generation_service.service.impl.KeyProvider;
 import com.jim_jam.key_generation_service.service.impl.UnusedKeyService;
 import com.jim_jam.key_generation_service.service.impl.UsedKeyService;
