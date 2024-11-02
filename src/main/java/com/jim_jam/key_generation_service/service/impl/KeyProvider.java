@@ -25,7 +25,7 @@ public class KeyProvider {
     private final static String KEY = "KEYS";
 
     private final int keyCacheMaxSize;
-    private final int keyGenerationThreshold;
+    private final int keyCacheLoadThreshold;
     private final Cache<String, Object> keyCache;
     private final UnusedKeyService unusedKeyService;
     private final KeyService keyService;
@@ -37,13 +37,13 @@ public class KeyProvider {
     public KeyProvider(
             Cache<String, Object> keyCache,
             @Value("${key.cache.max.size:50}") int keyCacheMaxSize,
-            @Value("${key.generation.threshold:70}") int keyGenerationThreshold,
+            @Value("${key.generation.threshold:70}") int keyCacheLoadThreshold,
             UnusedKeyService unusedKeyService,
             KeyService keyService
     ) {
         this.keyCache = keyCache;
         this.keyCacheMaxSize = keyCacheMaxSize;
-        this.keyGenerationThreshold = keyGenerationThreshold;
+        this.keyCacheLoadThreshold = keyCacheLoadThreshold;
         this.unusedKeyService = unusedKeyService;
         this.keyService = keyService;
     }
@@ -70,7 +70,7 @@ public class KeyProvider {
         }
 
         // we need to check if the number of keys are below the threshold
-        int thresholdSize = (int) (Math.floor(((double)keyGenerationThreshold/100) * keyCacheMaxSize));
+        int thresholdSize = (int) (Math.floor(((double) keyCacheLoadThreshold /100) * keyCacheMaxSize));
 
         // if keys are below threshold, we need to generate more
         if (keys == null || keys.size() < thresholdSize) {
@@ -123,10 +123,10 @@ public class KeyProvider {
         return str.substring(startIndex, endIndex);
     }
 
-    public static String generateKey(int keyLength) {
+    public static Key generateKey(int keyLength) {
         UUID uuid = UUID.randomUUID();
         String cleanUuid = uuid.toString().replaceAll("-", "");
-        return getRandomSubstring(cleanUuid, keyLength);
+        return Key.builder().key(getRandomSubstring(cleanUuid, keyLength)).build();
     }
 
     /**
