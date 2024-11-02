@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service layer to interact with persistence layer of unused_keys collection
@@ -76,5 +77,15 @@ public class UnusedKeyService {
         List<UnusedKey> keys = unusedKeyRepository.findByOrderByCreatedAtDesc(pageable);
         log.info("Successfully fetched {} key(s) from database", keys.size());
         return keys;
+    }
+
+    /**
+     * Method to find a key with an id
+     * @param id of the key
+     * @return {@link UnusedKey}
+     */
+    public UnusedKey findById(String id) {
+        Optional<UnusedKey> unusedKey = unusedKeyRepository.findById(id);
+        return unusedKey.orElse(null);
     }
 }
