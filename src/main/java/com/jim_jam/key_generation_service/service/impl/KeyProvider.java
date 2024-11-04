@@ -29,6 +29,7 @@ public class KeyProvider {
     private final Cache<String, Object> keyCache;
     private final UnusedKeyService unusedKeyService;
     private final KeyService keyService;
+    private final AsyncService asyncService;
 
     /**
      * Primary constructor to set up bean
@@ -39,13 +40,15 @@ public class KeyProvider {
             @Value("${key.cache.max.size:50}") int keyCacheMaxSize,
             @Value("${key.generation.threshold:70}") int keyCacheLoadThreshold,
             UnusedKeyService unusedKeyService,
-            KeyService keyService
+            KeyService keyService,
+            AsyncService asyncService
     ) {
         this.keyCache = keyCache;
         this.keyCacheMaxSize = keyCacheMaxSize;
         this.keyCacheLoadThreshold = keyCacheLoadThreshold;
         this.unusedKeyService = unusedKeyService;
         this.keyService = keyService;
+        this.asyncService = asyncService;
     }
 
     /**
@@ -74,36 +77,11 @@ public class KeyProvider {
 
         // if keys are below threshold, we need to generate more
         if (keys == null || keys.size() < thresholdSize) {
-            loadKeysInCache();
+            asyncService.loadKeysInCache();
         }
 
         return key;
     }
-
-    /**
-     * Method to load new keys into cache
-     */
-    private void loadKeysInCache() {
-        List<Key> existingKeysInCache = (List<Key>) keyCache.getIfPresent(KEY);
-
-        int diff = keyCacheMaxSize;
-        if (existingKeysInCache != null && !existingKeysInCache.isEmpty()) {
-            diff = keyCacheMaxSize - existingKeysInCache.size();
-        }
-        List<UnusedKey> unusedKeys = unusedKeyService.getKeys(diff);
-
-        List<Key> newKeys = new ArrayList<>(unusedKeys);
-
-        if (existingKeysInCache != null) {
-            newKeys.addAll(existingKeysInCache);
-        }
-
-        keyCache.put(KEY, newKeys);
-        log.info("Successfully loaded cache to its max capacity. {} new keys loaded.", newKeys.size());
-
-        keyService.moveKeysFromUnusedToUsed(unusedKeys);
-    }
-
 
     /**
      * Method to get random substring of length {@code KeyGenerationServiceHelper.keyLength}
