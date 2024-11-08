@@ -7,3 +7,6 @@ For our simple project, it makes sense to make it a part of URL shortener servic
 
 ## Components in this service
 ![component diagram](https://github.com/Tarunpreetsingh16/key-generation-service/blob/develop/documentation/images/component_diagram.jpeg)
+
+## Flow Diagram 
+![Flow diagram](https://github.com/Tarunpreetsingh16/key-generation-service/blob/develop/documentation/images/Flow-Diagram.jpeg)
